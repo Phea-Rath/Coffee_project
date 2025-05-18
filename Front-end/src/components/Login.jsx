@@ -30,6 +30,8 @@ const Login = () => {
       console.log(userLogin);
       if (userLogin && userLogin.password === password) {
         localStorage.setItem("accountId",userLogin.status_role)
+        localStorage.branch_id = userLogin.branch_id;
+        localStorage.user_id = userLogin.id;
         await login(userLogin.status_role);
         navigate("/"+userLogin.role);
       } else {

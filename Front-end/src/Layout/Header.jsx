@@ -30,13 +30,13 @@ const Header = () => {
         </Link>
       </article>
       <article className='flex flex-[0.3] justify-between items-center'>
-      {accountId==1?<NavLink to="list-product">
+      <NavLink to="list-product">
         <FaStore className='text-3xl' title='List' />
-      </NavLink>:""}
+      </NavLink>
       <NavLink to="report">
         <TbReport className='text-3xl' title='Report'/>
       </NavLink>
-      <NavLink>
+      <NavLink to="about">
         <FcAbout className='text-3xl' title='About'/>
       </NavLink>
         <nav className='flex items-center gap-3 relative'>
@@ -44,7 +44,7 @@ const Header = () => {
           {drop?<ul className=' absolute -bottom-[120px] -left-10 bg-gray-300 text-black z-20 shadow-md'>
             <li onClick={() => { setDrop(false); navigator('list-branch')}} className='p-2 hover:bg-gray-600 cursor-pointer'>Branch</li>
             <li onClick={() => { setDrop(false); navigator('/register')}} className='p-2 hover:bg-gray-600 cursor-pointer'>Register</li>
-            <li onClick={async () => { setDrop(false); localStorage.setItem("accountId", 0); localStorage.setItem("AccountRouter", JSON.stringify({ accountId, role: 'Login' })); await logout(); navigator('/');}} className='p-2 hover:bg-gray-600 cursor-pointer'>Logout</li>
+            <li onClick={async () => { setDrop(false); localStorage.setItem("accountId", 0); localStorage.setItem("branch_id", 0); localStorage.setItem("AccountRouter", JSON.stringify({ accountId, role: 'Login' })); await logout(); navigator('/');}} className='p-2 hover:bg-gray-600 cursor-pointer'>Logout</li>
           </ul>:''}
           {/* <h4 onClick={handleLogout}>Logout</h4> */}
         {/* <div className=' overflow-hidden rounded-full'>

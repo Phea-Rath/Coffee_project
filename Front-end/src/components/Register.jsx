@@ -44,7 +44,7 @@ const Register = () => {
       const respone = await axios.post(BASE_URL+'/users', formdata);
       alert(respone.data.message);
       console.log("Success:", respone.data);
-      navigator("/admin/home")
+      navigator("/Admin")
     } catch (error) {
       console.log("Error posting data:", error);
       alert(error);
@@ -58,7 +58,7 @@ const Register = () => {
     <section className='h-[100vh] bg-[#d5bba9] flex justify-center items-center'>
           <main className='bg-gray-50 rounded-md w-md'>
             <article className='p-5 flex justify-center items-center relative'>
-              <a className=' absolute left-2 top-2 underline' href="admin/home">back</a>
+              <a className=' absolute left-2 top-2 underline' href="/admin">back</a>
               <nav>
                 <img src={Logo} alt="" className='h-[70px]'/>
               </nav>
@@ -76,7 +76,7 @@ const Register = () => {
                 </div>
                 <div className='bg-gray-50 rounded-md px-5 py-2 flex flex-col'>
                   <label htmlFor="password" className='font-semibold'>Role</label>
-                  <select type="text" name='password' onChange={(e) => { setRole_status(e.target.value); setRole(role_status === 1?"Admin":"Staff")}} value={role_status} className='outline-0'>
+                  <select type="text" name='password' onChange={(e) => { setRole_status(e.target.value); setRole(e.target.value == 1?"Admin":"Staff")}} value={role_status} className='outline-0'>
                     <option value="">Select role</option>
                     <option value="1">Admin</option>
                     <option value="2">Staff</option>

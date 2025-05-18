@@ -14,6 +14,8 @@ import ListBranch from './components/ListBranch'
 import AddBranch from './components/AddBranch'
 // import Unauthorized from './components/Unauthorized'
 import ErrorPage from './components/ErrorPage'
+import ReceiptDetail from './components/ReceiptDetail'
+import EditProduct from './components/EditProduct'
 
 const router = createBrowserRouter([
   {
@@ -22,15 +24,19 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage/>,
   },
   {
-    element: <RequireAuth allowedRole="Login" />,
+    path: '/',
+    element: <Login/>,
     errorElement: <ErrorPage/>,
-    children: [
-      {
-        path: '/',
-        element: <Login/>,
-        errorElement: <ErrorPage/>,
-      },
-    ]
+  },
+  {
+    path: '/register',
+    errorElement: <ErrorPage/>,
+    element: <Register/>
+  },
+  {
+    path: 'add-branch',
+    element: <AddBranch/>,
+    errorElement: <ErrorPage/>,
   },
   {
     element: <RequireAuth allowedRole="Admin" />,
@@ -42,7 +48,6 @@ const router = createBrowserRouter([
       },
       {
         path: "/admin",
-        index: 1,
         element: <ManagementLayout />,
         errorElement: <ErrorPage/>,
         children: [
@@ -66,6 +71,11 @@ const router = createBrowserRouter([
             element: <AddProduct/>,
           },
           {
+            path: 'edit-product/:id',
+            element: <EditProduct/>,
+            errorElement: <ErrorPage/>,
+          },
+          {
             path: 'report',
             element: <Report/>,
             errorElement: <ErrorPage/>,
@@ -81,6 +91,11 @@ const router = createBrowserRouter([
             errorElement: <ErrorPage/>,
           },
         ]
+      },
+      {
+        path: 'Admin/receipt-detail/:id',
+        element: <ReceiptDetail/>,
+        errorElement: <ErrorPage/>,
       },
     ]
   },
@@ -108,7 +123,17 @@ const router = createBrowserRouter([
             path: 'list-product',
             element: <ListProduct/>,
           },
+          {
+            path: 'report',
+            element: <Report/>,
+            errorElement: <ErrorPage/>,
+          },
         ]
+      },
+      {
+        path: 'staff/receipt-detail/:id',
+        element: <ReceiptDetail/>,
+        errorElement: <ErrorPage/>,
       },
     ]
   },

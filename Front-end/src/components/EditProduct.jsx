@@ -1,18 +1,33 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Logo from '../assets/logo.jpg'
 import axios from 'axios';
 import BASE_URL from '../Services/Base_Url';
-import { useNavigate } from 'react-router';
-const AddProduct = () => {
+import { useNavigate, useParams } from 'react-router';
+const EditProduct = () => {
+  const { id } = useParams();
   const navigator = useNavigate();
   const [Data, setData] = useState({});
   const [viewImage, setViewImage] = useState(null);
   const user_id = localStorage.getItem("user_id");
-  const branch_id = localStorage.getItem("branch_id");
-  console.log(user_id)
+
+  useEffect(() => {
+    async function fetchProduct(params) {
+      try {
+        const response = await axios.get(BASE_URL + `/products/${params}`);
+        if (response.data.status == 200) {
+          setData({...response.data.data,imageFile: null});
+          setViewImage(response.data.data.image||null)
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    fetchProduct(id);
+  }, [])
+  console.log(Data);
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-    setData(prev => ({ ...prev, image: file }));
+    setData(prev => ({ ...prev, imageFile: file }));
     setViewImage(URL.createObjectURL(file));
 
   };
@@ -21,20 +36,19 @@ const AddProduct = () => {
   }
   async function handleSubmit() {
     console.log(Data);
-    if (!Data.code && !Data.name && !Data.image && !Data.category && !Data.price) {
+    if (!Data.code && !Data.name && !Data.image && !Data.category && !Data.unit_price) {
       alert("Please input data");
       return;
     }
     const formData = new FormData();
     formData.append("user_id", user_id);
-    formData.append("branch_id", branch_id);
     formData.append("code", Data.code);
     formData.append("name", Data.name);
-    formData.append("image", Data.image);
+    formData.append("image", Data.imageFile);
     formData.append("category", Data.category);
-    formData.append("price", Data.price);
+    formData.append("price", Data.unit_price);
     try {
-      const response = await axios.post(BASE_URL + "/products", formData, {
+      const response = await axios.post(BASE_URL + `/product/${id}`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -48,7 +62,7 @@ const AddProduct = () => {
   }
   return (
     <section className='h-[calc(100vh-100px)] px-3'>
-      <h1>Add New Product</h1>
+      <h1>Update Product</h1>
       <article className='bg-white rounded-md p-3 flex flex-col gap-5 mt-3'>
         <nav className='flex items-center flex-col gap-3'>
           <div className=' overflow-hidden rounded-full'>
@@ -72,13 +86,13 @@ const AddProduct = () => {
             <input onChange={handleChange} value={Data.category} type="text" name='category' className='border border-gray-300 p-2 rounded-lg outline-0 w-full' />
           </div>
           <div className='flex-1'>
-            <label htmlFor="price" className='text-gray-500 mb-3'>Price</label> <br />
-            <input onChange={handleChange} value={Data.price} type="text" name='price' className='border border-gray-300 p-2 rounded-lg outline-0 w-full' />
+            <label htmlFor="unit_price" className='text-gray-500 mb-3'>Price</label> <br />
+            <input onChange={handleChange} value={Data.unit_price} type="text" name='unit_price' className='border border-gray-300 p-2 rounded-lg outline-0 w-full' />
           </div>
         </nav>
         <nav className='md:px-10 flex justify-between items-end'>
           <div>
-            <label htmlFor="img"><img style={{ maxWidth: 'auto', height: '150px' }}  src={viewImage||"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQKDvbGs5KSuVIll5qLjRALjnTvXletu7aiVQ&s"} alt="" /></label>
+            <label htmlFor="img"><img style={{ maxWidth: 'auto', height: '150px' }}  src={viewImage??"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQKDvbGs5KSuVIll5qLjRALjnTvXletu7aiVQ&s"} alt="" /></label>
             <input type="file" onChange={handleFileChange} name="img" id="img" className='hidden' />
           </div>
           <div>
@@ -90,4 +104,4 @@ const AddProduct = () => {
   )
 }
 
-export default AddProduct
+export default EditProduct

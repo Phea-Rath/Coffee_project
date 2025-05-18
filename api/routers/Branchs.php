@@ -41,4 +41,16 @@ return function(App $app){
 
     }
   });
+  $app->delete("/api/branchs/{id}",function(Request $request,Response $response, $args){
+    $id = $args["id"];
+    $pdo = ConnectionDB();
+    $sql = $pdo->prepare("UPDATE branch set is_active = 0 where id = $id");
+    if($sql->execute()){
+      $response->getBody()->write(json_encode(["message"=>"Branch deleted successfully","status"=>200]));
+      return $response->withStatus(200);
+    }else{
+      $response->getBody()->write(json_encode(["message"=>"Branch delete fail","status"=>400]));
+      return $response->withStatus(400);
+    }
+  });
 };

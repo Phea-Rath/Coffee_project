@@ -1,7 +1,7 @@
 <?php 
 // require '../vendor/autoload.php';
-require_once '../Services/Function.php';
-require_once '../Database/connection_db.php';
+require_once __DIR__ .  '/../services/function.php';
+require_once __DIR__ .  '/../database/connection_db.php';
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 // use Slim\Factory\AppFactory;
@@ -144,7 +144,7 @@ return function(App $app){
     $sql = $pdo->prepare("SELECT * FROM products where is_active = 1");
     $sql->execute();
     $data = $sql->fetchAll(PDO::FETCH_ASSOC);
-    $base_url = require_once '../Services/base_url.php';
+    $base_url = require_once __DIR__ . '/../services/base_url.php';
     // $product_items = $data;
     if($data){
       foreach($data as $key => $value){
@@ -168,7 +168,7 @@ return function(App $app){
     $sql = $pdo->prepare("SELECT * FROM products where is_active = 1 and id = {$args['id']}");
     $sql->execute();
     $data = $sql->fetchAll(PDO::FETCH_ASSOC);
-    $base_url = require_once '../Services/base_url.php';
+    $base_url = require_once __DIR__ . '/../services/base_url.php';
     // $product_items = $data;
     if($data){
       foreach($data as $key => $value){

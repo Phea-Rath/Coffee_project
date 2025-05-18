@@ -1,13 +1,13 @@
 <?php
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
 
 use Slim\Factory\AppFactory;
 // Load route files
 $app = AppFactory::create();
-(require __DIR__ . '/../routers/Registers.php')($app);
-(require __DIR__ . '/../routers/Products.php')($app);
-(require __DIR__ . '/../routers/Branchs.php')($app);
-(require __DIR__ . '/../routers/Receipts.php')($app);
+(require __DIR__ . '/routers/registers.php')($app);
+(require __DIR__ . '/routers/products.php')($app);
+(require __DIR__ . '/routers/branchs.php')($app);
+(require __DIR__ . '/routers/receipts.php')($app);
 
 // CORS Middleware
 $app->add(function ($request, $handler) {

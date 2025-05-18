@@ -58,12 +58,13 @@ const Login = () => {
                 <input type="text" name='username' onChange={(e)=>setUsername(e.target.value)} value={userName} className='outline-0'/>
               </div>
               <div className='bg-gray-50 rounded-md px-5 py-2 flex flex-col'>
-                <label htmlFor="password" className=' font-semibold'>Password</label>
+                <label htmlFor="password" className='font-semibold'>Password</label>
                 <input type="text" name='password' onChange={(e)=>setPassword(e.target.value)} value={password} className='outline-0'/>
               </div>
               <div>
-                <input type="checkbox" name="remember" id="remember" />
-                <label htmlFor="remember" className='text-white'> Remember me</label>
+                {/* <input type="checkbox" name="remember" id="remember" /> */}
+                <label htmlFor="remember" className='text-white'>user: Admin</label><br />
+                <label htmlFor="remember" className='text-white'>password:123</label>
               </div>
             </nav>
             <button type='submit' className=' bg-blue-700 p-2 w-full rounded-md text-white'>Login</button>

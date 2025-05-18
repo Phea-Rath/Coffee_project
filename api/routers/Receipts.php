@@ -1,5 +1,5 @@
 <?php 
-require_once '../Database/connection_db.php';
+require_once __DIR__ . '/../database/connection_db.php';
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\App;

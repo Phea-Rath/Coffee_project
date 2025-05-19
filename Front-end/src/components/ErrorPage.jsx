@@ -178,7 +178,7 @@ const CoffeeErrorPage = ({ errorCode = 404, errorMessage = 'Page Not Found' }) =
           transition={{ delay: 0.6, duration: 0.5 }}
         >
           <motion.button
-            className={`px-6 py-3 rounded-full font-semibold transition-all duration-300 ${isHovering ? 'bg-amber-800 text-amber-50' : 'bg-amber-700 text-white'}`}
+            className={`px-6 py-3 cursor-pointer rounded-full font-semibold transition-all duration-300 ${isHovering ? 'bg-amber-800 text-amber-50' : 'bg-amber-700 text-white'}`}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onMouseEnter={() => setIsHovering(true)}
@@ -189,7 +189,7 @@ const CoffeeErrorPage = ({ errorCode = 404, errorMessage = 'Page Not Found' }) =
           </motion.button>
           
           <motion.button
-            className="px-6 py-3 rounded-full font-semibold border-2 border-amber-700 text-amber-700 hover:bg-amber-700 hover:text-white transition-colors duration-300"
+            className="px-6 py-3 cursor-pointer rounded-full font-semibold border-2 border-amber-700 text-amber-700 hover:bg-amber-700 hover:text-white transition-colors duration-300"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={async ()=> await navigator(path)}

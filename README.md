@@ -10,3 +10,7 @@ npm run dev
 ```
 php -S localhost:8080
 ```
+#Database 
+```
+api > Database > coffee.sql
+```

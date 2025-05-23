@@ -63,20 +63,20 @@ return function (App $app) {
                   $response->getBody()->write(json_encode(["error"=>$e->getMessage()]));
                   return $response->withStatus(200);
                 }
-                $response->getBody()->write(json_encode(["message"=>"Receipt added successfully"]));
+                $response->getBody()->write(json_encode(["message"=>"Receipt added successfully","status"=>200]));
                 return $response->withStatus(200);
               }else{
-                $response->getBody()->write(json_encode(["error"=>"Missing sale_detail request"]));
+                $response->getBody()->write(json_encode(["error"=>"Missing sale_detail request","status"=>400]));
                 return $response->withStatus(400);
               }
             }else{
-              $response->getBody()->write(json_encode(["error"=>"Missing receipt request"]));
+              $response->getBody()->write(json_encode(["error"=>"Missing receipt request","status"=>400]));
               return $response->withStatus(400);
             }
           }
       }
     }else{
-      $response->getBody()->write(json_encode(["error"=>"Missing sale request","data"=>$data]));
+      $response->getBody()->write(json_encode(["error"=>"Missing sale request","status"=>400,"data"=>$data]));
       return $response->withStatus(400);
     }
   });

@@ -11,6 +11,8 @@ import { visuallyHidden } from '@mui/utils';
 import axios from 'axios';
 import BASE_URL from '../Services/Base_Url';
 import { useNavigate } from 'react-router';
+import YesNoAlert from '../Messages/YesNoAlert';
+import { useOutletContext } from '../Layout/ManagementLayout';
 
 function createData(id, sale_id, unit_total, discount, tax, currency, total) {
   return { id, sale_id, unit_total, discount, tax, currency, total };
@@ -44,7 +46,7 @@ function EnhancedTableHead({ onSelectAllClick, order, orderBy, numSelected, rowC
   };
 
   return (
-    <TableHead>
+    <TableHead className=" sticky top-0 z-20 bg-white">
       <TableRow>
         <TableCell padding="checkbox">
           <Checkbox
@@ -140,10 +142,14 @@ EnhancedTableToolbar.propTypes = {
 
 export default function EnhancedTable() {
   const navigator = useNavigate();
+  const { setChildValue } = useOutletContext();
+  const [showAlert, setShowAlert] = React.useState(false);
   const accountId = localStorage.getItem("accountId");
+  const branch_id = localStorage.getItem("branch_id");
   const [order, setOrder] = React.useState('asc');
   const [orderBy, setOrderBy] = React.useState('sale_id');
   const [selected, setSelected] = React.useState([]);
+  const [selectedId, setSelectedId] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
@@ -153,7 +159,8 @@ export default function EnhancedTable() {
     async function fetchReceipt() {
       try {
         const response = await axios.get(BASE_URL + "/receipts");
-        const data = response.data.data || [];
+        const filterPro = response.data.data.filter((item) => item.branch_id == branch_id);
+        const data = filterPro || [];
         const formatted = data.map((item, index) =>
           createData(item.id, item.sale_id, item.unit_total, item.discount, item.tax, item.currency, item.total)
         );
@@ -165,6 +172,30 @@ export default function EnhancedTable() {
     fetchReceipt();
   }, []);
 
+  const handleConfirm = async () => {
+    try {
+        const response = await axios.delete(BASE_URL + `/receipts/${selectedId?.join(",")}`)
+        if (response.data.status == 200) {
+          let newRow = rows;
+          selectedId?.forEach((rec) => {
+            newRow = newRow.filter((item) => item.id != rec);
+          })
+          setRows(newRow);
+          setSelected([]);
+          setChildValue({status:1,alertMessage:"Receipts deleted successfully!"})
+        }
+        setShowAlert(false);
+      } catch (error) {
+        setChildValue({ status: 2, alertMessage: "Receipts delete fail!: "+ error });
+        setShowAlert(false);
+      }
+  }
+
+  const handleCancel = () => {
+    setShowAlert(false);
+    return;
+  }
+
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -175,20 +206,9 @@ export default function EnhancedTable() {
     setSelected(event.target.checked ? rows.map((n) => n.id) : []);
   };
 
-  const handleDelete = async (IdSelected) => {
-    try {
-      const response = await axios.delete(BASE_URL + `/receipts/${IdSelected.join(",")}`)
-      if (response.data.status == 200) {
-        let newRow = rows;
-        IdSelected?.forEach((rec) => {
-          newRow = newRow.filter((item) => item.id != rec);
-        })
-        setRows(newRow);
-        setSelected([]);
-      }
-    } catch (error) {
-      console.log(error);
-    }
+  const handleDelete = (IdSelected) => {
+    setSelectedId(IdSelected);
+    setShowAlert(true);
   }
 
   const handleClick = (event, id) => {
@@ -222,9 +242,18 @@ export default function EnhancedTable() {
 //h-[calc(100vh-100px)]
   return (
     <Box className="h-[calc(100vh-100px)]">
+      <YesNoAlert
+        isOpen={showAlert}
+        title="Question"
+        message="Are you sure you want delete this receipts?"
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
       <Paper sx={{ width: '100%', mb: 2 }}>
         <EnhancedTableToolbar numSelected={selected.length} accountId={accountId} IdSelected={selected} handleDeleted={handleDelete} handleDetail={handleDetail}/>
-        <TableContainer>
+        <TableContainer className='h-[calc(100vh-270px)] overflow-auto'>
           <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size={dense ? 'small' : 'medium'}>
             <EnhancedTableHead
               numSelected={selected.length}

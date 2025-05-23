@@ -21,15 +21,15 @@ const Header = () => {
   // console.log(accountId)
   return (
     <section className=' bg-[#3c2a1e] text-white flex items-center px-5 py-3'>
-      <article className='flex-1'>
+      <article className=' flex-[0.5] md:flex-1'>
         <Link className='flex items-center gap-3' to={path}>
           <div className=' overflow-hidden rounded-full'>
             <img className='w-[50px]' src={Logo} alt="" />
           </div>
-          <h2 className=' font-semibold'>COFFEE HOME</h2>
+          <h2 className=' font-semibold hidden md:block'>COFFEE HOME</h2>
         </Link>
       </article>
-      <article className='flex flex-[0.3] justify-between items-center'>
+      <article className='flex flex-1 md:flex-[0.3] justify-between items-center'>
       <NavLink to="list-product">
         <FaStore className='text-3xl' title='List' />
       </NavLink>
@@ -41,7 +41,7 @@ const Header = () => {
       </NavLink>
         <nav className='flex items-center gap-3 relative'>
           <label className=' cursor-pointer' htmlFor="" onClick={()=>setDrop(!drop)}><IoMdArrowDropdown className='text-3xl'/></label>
-          {drop?<ul className=' absolute -bottom-[120px] -left-10 bg-gray-300 text-black z-20 shadow-md'>
+          {drop?<ul className=' absolute -bottom-[120px] -left-10 bg-gray-300 text-black z-30 shadow-md'>
             <li onClick={() => { setDrop(false); navigator('list-branch')}} className='p-2 hover:bg-gray-600 cursor-pointer'>Branch</li>
             <li onClick={() => { setDrop(false); navigator('/register')}} className='p-2 hover:bg-gray-600 cursor-pointer'>Register</li>
             <li onClick={async () => { setDrop(false); localStorage.setItem("accountId", 0); localStorage.setItem("branch_id", 0); localStorage.setItem("AccountRouter", JSON.stringify({ accountId, role: 'Login' })); await logout(); navigator('/');}} className='p-2 hover:bg-gray-600 cursor-pointer'>Logout</li>

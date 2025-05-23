@@ -4,9 +4,14 @@ import { IoSearchOutline, IoChevronBack, IoChevronForward } from 'react-icons/io
 import { TbHttpDelete } from 'react-icons/tb'
 import { Link } from 'react-router'
 import BASE_URL from '../Services/Base_Url'
+import { useOutletContext } from '../Layout/ManagementLayout'
+import YesNoAlert from '../Messages/YesNoAlert'
 
 const ListBranch = () => {
+  const { setChildValue } = useOutletContext();
   const [branches, setBranches] = useState([]);
+  const [showAlert, setShowAlert] = useState(false);
+  const [deleteId, setDeleteId] = useState(null);
   const [filteredBranches, setFilteredBranches] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -43,16 +48,27 @@ const ListBranch = () => {
 
   // Handle remove branch
   async function handleRemove(id) {
-    const filtered = branches.filter((item) => item.id !== id);
+    setDeleteId(id);
+    setShowAlert(true);
+  }
+
+  const handleCancel = () => {
+    setShowAlert(false);
+    return;
+  }
+  const handleConfirm = async() => {
+    const filtered = branches.filter((item) => item.id !== deleteId);
     try {
-      const response = await axios.delete(BASE_URL + `/branchs/${id}`);
+      const response = await axios.delete(BASE_URL + `/branchs/${deleteId}`);
       if (response.data.status === 200) {
         setBranches(filtered);
         setFilteredBranches(filtered);
-        alert("Branch deleted successfully");
+        setChildValue({ status: 1, alertMessage: response.data?.message });
+        setShowAlert(false);
       }
     } catch (error) {
-      console.log(error);
+      setChildValue({ status: 2, alertMessage:"Branch delete fail! > " + error });
+      setShowAlert(false);
     }
   }
 
@@ -66,6 +82,15 @@ const ListBranch = () => {
 
   return (
     <section className='h-[calc(100vh-100px)] flex flex-col gap-3 p-4'>
+      <YesNoAlert
+        isOpen={showAlert}
+        title="Question"
+        message="Are you sure you want delete this branch?"
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
       <article className='flex flex-col md:flex-row justify-between gap-4 mb-4'>
         <nav className='flex flex-wrap gap-3'>
           <Link to="/admin/add-branch">

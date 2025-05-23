@@ -5,23 +5,43 @@ import { GrSubtractCircle } from "react-icons/gr";
 import { LuCirclePlus } from "react-icons/lu";
 import axios from 'axios';
 import BASE_URL from '../Services/Base_Url';
+import { useOutletContext } from '../Layout/ManagementLayout';
+import YesNoAlert from '../Messages/YesNoAlert';
+import { Box, CircularProgress } from '@mui/material';
 const Home = () => {
   const tax = 5;
-  const userId = localStorage.getItem("user_id")
+  const userId = localStorage.getItem("user_id");
+  const accountId = localStorage.getItem("accountId");
   const branch_id = localStorage.getItem("branch_id")
+  const [wait, setWait] = useState(false);
   const [products, setProducts] = useState([]);
+  const [receiptId, setReceiptId] = useState(null);
   const [productsType, setProductsType] = useState([]);
   const [orderProduct, setOrderProduct] = useState([]);
   const [currency, setCurrency] = useState("USD");
   const [discount, setDiscount] = useState(0);
+  const { setChildValue } = useOutletContext();
+  const [showAlert, setShowAlert] = useState(false);
+  const handleConfirm = () => {
+    setShowAlert(false);
+    window.open(accountId==1?"/admin/receipt-detail/" + receiptId: "/staff/receipt-detail/" + receiptId, '_blank');
+  };
+
+  const handleCancel = () => {
+    setShowAlert(false);
+  };
   useEffect(() => {
+    setWait(true);
     async function fetchProduct() {
       try {
-        const repsonse = await axios.get(BASE_URL + '/products');
-        setProducts(repsonse.data.data);
-        setProductsType(repsonse.data.data);
+        const response = await axios.get(BASE_URL + '/products');
+        const filterPro = response.data.data.filter((item) => item.branch_id == branch_id);
+        setProducts(filterPro);
+        setProductsType(filterPro);
+        setWait(false);
       } catch (error) {
         console.log(error);
+        setWait(false);
       }
     }
     fetchProduct();
@@ -101,6 +121,11 @@ const Home = () => {
   }
   
   async function handlePay() {
+    if (!orderProduct.length == 0) {
+      setChildValue({ status: 3, alertMessage: "Missing require!, Please order products." });
+      return;
+    }
+    setWait(true);
     const formData = {
       user_id: Number(userId),
       branch_id: Number(branch_id),
@@ -111,21 +136,39 @@ const Home = () => {
       total_receipt: Number(((orderProduct.unit_total - (orderProduct.unit_total *discount)) + orderProduct.tax).toFixed(2)),
       sale_detail: orderProduct.orderItem,
     }
-    console.log(formData)
     try {
       const respones = await axios.post(BASE_URL + "/receipts", formData);
-      alert(respones.data.message);
-      setOrderProduct([]);
+      if (respones.data.status == 200) {
+        setChildValue({ status: 1, alertMessage: respones.data?.message||"Products order successfully!" });
+        setOrderProduct([]);
+        const responseReceipt = await axios.get(BASE_URL + "/receipts");
+        setReceiptId(responseReceipt.data?.data[responseReceipt.data.data?.length-1].id);
+        setWait(false);
+        setShowAlert(true);
+      }
     } catch (error) {
-      console.log(error)
+      setChildValue({ status: 1, alertMessage: error || "Products order fail!" });
+      setWait(false);
     }
   }
   return (
-    <section className=' relative flex md:flex-row flex-col gap-3 h-[calc(100vh-100px)] overflow-auto'>
+    <section className=' flex md:flex-row flex-col gap-3 h-[calc(100vh-100px)] overflow-auto'>
+      <Box sx={{ display: 'flex' }} className={` absolute top-0 left-0 bg-gray-400 w-[100vw] h-[100vh] transition-all duration-500 ease-in-out justify-center items-center ${wait?'z-40 opacity-50':'-z-40 opacity-0'}`}>
+        <CircularProgress />
+      </Box>
+       <YesNoAlert
+        isOpen={showAlert}
+        title="Question"
+        message="Are you want create receipt?"
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+        confirmText="Ok"
+        cancelText="Cancel"
+      />
       <article className='flex flex-col md:w-[70%] gap-3 relative'>
-        <article className=' bg-white p-5 pb-0 shadow-md h-[calc(100%-50px)]'>
+        <article className=' bg-white p-5 pb-0 shadow-md h-100vh md:h-[calc(100%-50px)]'>
           <nav className='flex justify-between items-center pb-2 '>
-            <h5>Products</h5>
+            <h5 className='hidden md:block'>Products</h5>
             <div className=' relative bg-gray-50 p-1 rounded-md'>
               <label htmlFor="search" className=' absolute left-1 top-2 text-gray-500'><IoSearchOutline /></label>
               <input onChange={changeSearch} className='ml-5 outline-0' type="text" name='search' placeholder='Search item' />
@@ -134,7 +177,7 @@ const Home = () => {
               {categorys?.map((name,index) => <option key={index} value={name}>{name}</option>)}
             </select>
           </nav>
-          <nav className='flex justify-center flex-wrap gap-5 h-[calc(100%-50px)] overflow-auto border border-gray-200 border-b-0 pt-1'>
+          <nav className='flex justify-center flex-wrap gap-5 h-[calc(100vh-300px)] overflow-auto border border-gray-200 border-b-0 pt-1'>
             {productsType?.map(({id,name,image,unit_price},index)=><div key={index} onClick={()=>handleProduct(id)} className='w-[150px] h-[250px] flex flex-col gap-3'>
               <div className='border border-gray-200 h-[150px] overflow-hidden flex justify-center items-center shadow-sm'>
                 <img className='w-[120px]' src={image} alt="" />

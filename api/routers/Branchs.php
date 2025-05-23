@@ -19,10 +19,10 @@ return function(App $app){
         ":name"=>$name,
         ":location"=>$location
       ]);
-      $response->getBody()->write(json_encode(["message"=>"Branch added successfully"]));
+      $response->getBody()->write(json_encode(["message"=>"Branch added successfully","status"=>200]));
       return $response->withStatus(200);
     }else{
-      $response->getBody()->write(json_encode(["error"=>"Missing request"]));
+      $response->getBody()->write(json_encode(["error"=>"Missing request","status"=>400]));
       return $response->withStatus(400);
     }
   });
@@ -36,7 +36,7 @@ return function(App $app){
       $response->getBody()->write(json_encode(["message"=>"Branch selected successfully","status"=>200,"data"=>$data]));
       return $response->withStatus(200);
     }else{
-      $response->getBody()->write(json_encode(["message"=>"Branch not found"]));
+      $response->getBody()->write(json_encode(["message"=>"Branch not found","status"=>400]));
       return $response->withStatus(400);
 
     }

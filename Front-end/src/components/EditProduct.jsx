@@ -3,11 +3,15 @@ import Logo from '../assets/logo.jpg'
 import axios from 'axios';
 import BASE_URL from '../Services/Base_Url';
 import { useNavigate, useParams } from 'react-router';
+import { useOutletContext } from '../Layout/ManagementLayout';
+import { Box, CircularProgress } from '@mui/material';
 const EditProduct = () => {
+  const { setChildValue } = useOutletContext();
   const { id } = useParams();
   const navigator = useNavigate();
   const [Data, setData] = useState({});
   const [viewImage, setViewImage] = useState(null);
+  const [wait, setWait] = useState(false);
   const user_id = localStorage.getItem("user_id");
 
   useEffect(() => {
@@ -15,16 +19,15 @@ const EditProduct = () => {
       try {
         const response = await axios.get(BASE_URL + `/products/${params}`);
         if (response.data.status == 200) {
-          setData({...response.data.data,imageFile: null});
-          setViewImage(response.data.data.image||null)
+          setData({ ...response.data.data, imageFile: null });
+          setViewImage(response.data.data.image || null)
         }
       } catch (error) {
         console.log(error);
       }
     }
     fetchProduct(id);
-  }, [])
-  console.log(Data);
+  }, []);
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     setData(prev => ({ ...prev, imageFile: file }));
@@ -35,11 +38,11 @@ const EditProduct = () => {
     setData(prev => ({ ...prev, [e.target.name]: e.target.value }))
   }
   async function handleSubmit() {
-    console.log(Data);
-    if (!Data.code && !Data.name && !Data.image && !Data.category && !Data.unit_price) {
-      alert("Please input data");
+    if (!Data.code || !Data.name || !Data.image || !Data.category || !Data.unit_price) {
+      setChildValue({status:3,alertMessage:"Missing require!, Please input data in field!"})
       return;
     }
+    setWait(true);
     const formData = new FormData();
     formData.append("user_id", user_id);
     formData.append("code", Data.code);
@@ -53,15 +56,22 @@ const EditProduct = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
-      alert(response.data.message);
-      navigator('/admin/list-product');
+      if (response.data.status == 200) {
+        setChildValue({ status: 1, alertMessage: "Product updated successfully" });
+        setWait(false);
+        navigator('/admin/list-product');
+      }
     } catch (error) {
-      alert("Error:", error)
+      setChildValue({ status: 2, alertMessage: "Product update fail" });
+      setWait(false);
     }
     
   }
   return (
     <section className='h-[calc(100vh-100px)] px-3'>
+      <Box sx={{ display: 'flex' }} className={` absolute top-0 left-0 bg-gray-400 w-[100vw] h-[100vh] transition-all duration-500 ease-in-out justify-center items-center ${wait?'z-40 opacity-50':'-z-40 opacity-0'}`}>
+        <CircularProgress />
+      </Box>
       <h1>Update Product</h1>
       <article className='bg-white rounded-md p-3 flex flex-col gap-5 mt-3'>
         <nav className='flex items-center flex-col gap-3'>

@@ -5,16 +5,22 @@ import { TbHttpDelete } from 'react-icons/tb'
 import { Link, useNavigate } from 'react-router'
 import BASE_URL from '../Services/Base_Url'
 import { FiEdit3 } from 'react-icons/fi'
+import { useOutletContext } from '../Layout/ManagementLayout'
+import YesNoAlert from '../Messages/YesNoAlert'
 
 const ListProduct = () => {
   const navigator = useNavigate();
+  const { setChildValue } = useOutletContext();
   const [products, setProducts] = useState([]);
+  const [showAlert, setShowAlert] = useState(false);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState('');
+  const [deleteId, setDeleteId] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const accountId = localStorage.getItem("accountId");
+  const branch_id = localStorage.getItem("branch_id");
 
   // Get unique categories for dropdown
   const categories = ['all', ...new Set(products?.map(product => product.category))];
@@ -23,8 +29,9 @@ const ListProduct = () => {
     async function fetchProducts() {
       try {
         const response = await axios(BASE_URL + "/products");
-        setProducts(response.data.data);
-        setFilteredProducts(response.data.data);
+        const filterPro = response.data.data.filter((item) => item.branch_id == branch_id);
+        setProducts(filterPro);
+        setFilteredProducts(filterPro);
       } catch (error) {
         console.log(error);
       }
@@ -68,24 +75,47 @@ const ListProduct = () => {
     setCurrentPage(1);
   };
 
-  async function handleRemoved(id) {
-    const filter = filteredProducts.filter((item) => item.id !== id);
-    console.log(filter);
-    setFilteredProducts(filter)
-    try {
-      const response = await axios.delete(BASE_URL + `/products/${id}`);
-      if (response.data.data.status == 200) {
-        alert(response.data.data.message);
-        setFilteredProducts(filter);
+  const handleConfirm = async () => {
+    const filter = filteredProducts.filter((item) => item.id != deleteId);
+    if (filter) {
+      try {
+        const response = await axios.delete(BASE_URL + `/products/${deleteId}`);
+        if (response.data.status == 200) {
+          
+          // setChildValue({status:1, alertMessage: response.data?.message || "Product added successfully!"});
+          setChildValue({ status: 1, alertMessage: "Product deleted successfully!" });
+          setFilteredProducts(filter);
+          setShowAlert(false);
+        }
+      } catch (error) {
+        setChildValue({ status: 2, alertMessage: "Product delete fail! >"+error});
+        console.log(error);
+        setShowAlert(false);
       }
-    } catch (error) {
-      console.log(error);
     }
+  }
+  const handleCancel = () => {
+    setShowAlert(false);
+  }
+
+  function handleRemoved(id) {
+    console.log(id)
+    setDeleteId(id);
+    setShowAlert(true)
   }
 
   return (
     <section className='h-[calc(100vh-100px)] flex flex-col gap-3'>
-      <article className='flex'>
+      <YesNoAlert
+        isOpen={showAlert}
+        title="Question"
+        message="Are you sure you want delete this product?"
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
+      <article className='flex flex-wrap gap-5'>
         <nav className='flex-1 flex gap-3'>
           {accountId==1?<Link to="/admin/add-product">
             <button className='bg-green-600 px-2 py-1 text-white rounded-sm'>+ Add New</button>
@@ -108,7 +138,7 @@ const ListProduct = () => {
           </div>
         </nav>
         <nav className='flex gap-5'>
-          <div className='relative bg-gray-50 p-1 rounded-md'>
+          <div className='relative bg-gray-50 p-1 h-8 rounded-md'>
             <label htmlFor="search" className='absolute left-1 top-2 text-gray-500'>
               <IoSearchOutline />
             </label>
@@ -138,9 +168,8 @@ const ListProduct = () => {
           </div>
         </nav>
       </article>
-      
       <div className='flex-1 overflow-auto'>
-        <table className='table-auto w-full'>
+        <table className='table-auto min-w-3xl md:w-full'>
           <thead className='bg-[#6f4e37] text-white sticky top-0'>
             <tr>
               <th className='text-start p-2'>#</th>

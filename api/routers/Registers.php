@@ -12,7 +12,7 @@ return function(App $app){
     $app->get('/api/users', function (Request $request, Response $response, $args){
         $pdo = ConnectionDB();
         if($pdo == false){
-            $response->getBody()->write(json_encode(["error" => "Connection fail"]));
+            $response->getBody()->write(json_encode(["error" => "Connection fail","status"=>400]));
             return $response->withStatus(404);
         }
         $sql = $pdo->prepare("SELECT * FROM users WHERE is_active = 1");
@@ -38,7 +38,7 @@ return function(App $app){
         $id = $args['id'];
         $pdo = ConnectionDB();
         if($pdo == false){
-            $response->getBody()->write(json_encode(["error" => "Database Connection fail"]));
+            $response->getBody()->write(json_encode(["error" => "Database Connection fail","status"=>400]));
             return $response->withStatus(404);
           }
         $sql = $pdo->prepare("SELECT * FROM users WHERE is_active = 1 AND id = :id");
@@ -73,7 +73,7 @@ return function(App $app){
         if (isset($data["name"], $data["password"], $data["role"], $data["status_role"])) {
             $pdo = ConnectionDB();
             if($pdo == false){
-                $response->getBody()->write(json_encode(["error" => "Database Connection fail"]));
+                $response->getBody()->write(json_encode(["error" => "Database Connection fail","status"=>400]));
                 return $response->withStatus(404);
               }
             $sql = $pdo->prepare("INSERT INTO users (name, password, role, status_role, branch_id, created_by) VALUES (:name, :password, :role, :status_role, :branch_id, :created_by)");
@@ -86,12 +86,12 @@ return function(App $app){
                 ":created_by" => htmlspecialchars($data["created_by"]),
             ]);
     
-            $response->getBody()->write(json_encode(["message" => "User register is successfully"]));
+            $response->getBody()->write(json_encode(["message" => "User register is successfully","status"=>200]));
             return $response
                 ->withStatus(200);
     
         } else {
-            $response->getBody()->write(json_encode(["error" => "User register is fail"]));
+            $response->getBody()->write(json_encode(["error" => "User register is fail","status"=>400]));
             return $response
                 ->withStatus(404);
         }
@@ -102,7 +102,7 @@ return function(App $app){
         if (isset($data["name"], $data["password"], $data["role"], $data["status_role"])) {
             $pdo = ConnectionDB();
             if($pdo == false){
-                $response->getBody()->write(json_encode(["error" => "Database Connection fail"]));
+                $response->getBody()->write(json_encode(["error" => "Database Connection fail","status"=>400]));
                 return $response->withStatus(404);
               }
             $sql = $pdo->prepare("UPDATE users  set name = :name, password = :password, role = :role, status_role = :status_role where id = :id");
@@ -114,12 +114,12 @@ return function(App $app){
                 ":status_role" => htmlspecialchars($data["status_role"])
             ]);
     
-            $response->getBody()->write(json_encode(["message" => "User updated successfully"]));
+            $response->getBody()->write(json_encode(["message" => "User updated successfully","status"=>200]));
             return $response
                 ->withStatus(200);
     
         } else {
-            $response->getBody()->write(json_encode(["error" => "User update fail"]));
+            $response->getBody()->write(json_encode(["error" => "User update fail","status"=>400]));
             return $response
                 ->withStatus(404);
         }
@@ -129,19 +129,19 @@ return function(App $app){
     
         $pdo = ConnectionDB();
         if($pdo == false){
-            $response->getBody()->write(json_encode(["error" => "Database Connection fail"]));
+            $response->getBody()->write(json_encode(["error" => "Database Connection fail","status"=>400]));
             return $response->withStatus(404);
           }
         $sql = $pdo->prepare("UPDATE users  set is_active = 0 where id = :id");
         
         
         if ($sql->execute([":id" => $args["id"]])) {
-            $response->getBody()->write(json_encode(["message" => "User deleted successfully","User"=>$args["id"]]));
+            $response->getBody()->write(json_encode(["message" => "User deleted successfully","status"=>200,"User"=>$args["id"]]));
             return $response
                 ->withStatus(200);
     
         } else {
-            $response->getBody()->write(json_encode(["error" => "User delete fail"]));
+            $response->getBody()->write(json_encode(["error" => "User delete fail","status"=>400]));
             return $response
                 ->withStatus(404);
         }
